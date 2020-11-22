@@ -2,7 +2,7 @@ import re
 
 from collections import namedtuple
 from datetime import timedelta
-from typing import List
+from typing import List, Generator
 
 import srt
 
@@ -13,7 +13,7 @@ TIME_OFFSET_INDEX=0
 EN_INDEX=1
 ZH_INDEX=2
 
-PART_SRT_SEP_REGEX=re.compile(r'(?<=\S)\|\s?|\s?\|(?!\S)')
+PART_SRT_SEP_REGEX=re.compile(r'(?<=\S)\|\s?|\s?\|(?!\S)|^\||\|$')
 
 
 TimeOffset = namedtuple('TimeOffset', ['start', 'end'])
@@ -101,3 +101,35 @@ class DraftSrt(Srt):
             else:
                 res.append(None)
         return res
+
+    @staticmethod
+    def to_final_srts(draft_srts: List['DraftSrt'], langs: List[str] = ['en', 'zh']) -> Generator[Srt, None, None]:
+
+        tmp = []
+
+        for draft_srt in draft_srts:
+            part_srts = draft_srt.get_part_srts()
+            length = len(part_srts)
+            for i in range(length):
+                tmp.append(part_srts[i])
+                if i != length - 1:
+                    yield __class__.merge_part_srts(tmp)
+                    tmp = []
+
+        yield __class__.merge_part_srts(tmp)
+
+    @staticmethod
+    def merge_part_srts(part_srts: List[Srt]) -> Srt:
+        part_srts = [_ for _ in part_srts if _ is not None]  # 非空
+        length = len(part_srts)
+        start = part_srts[0].start
+        end = part_srts[length - 1].end
+        en_text = ' '.join([_.content.split('\n')[0] for _ in part_srts])
+        zh_text = ''.join([_.content.split('\n')[1] for _ in part_srts])
+
+        return Srt(
+            index=0,
+            start=start,
+            end=end,
+            content=en_text + '\n' + zh_text
+        )
