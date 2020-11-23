@@ -14,6 +14,7 @@ EN_INDEX=1
 ZH_INDEX=2
 
 PART_SRT_SEP_REGEX=re.compile(r'(?<=\S)\|\s?|\s?\|(?!\S)|^\||\|$')
+FIX_EN_SRT_REGEX = re.compile(r'\s?\{()\}\s?|\{([\w, -]+)\}')
 
 
 TimeOffset = namedtuple('TimeOffset', ['start', 'end'])
@@ -125,6 +126,7 @@ class DraftSrt(Srt):
         start = part_srts[0].start
         end = part_srts[length - 1].end
         en_text = ' '.join([_.content.split('\n')[0] for _ in part_srts])
+        en_text = __class__.fix_en_text(en_text)
         zh_text = ''.join([_.content.split('\n')[1] for _ in part_srts])
 
         return Srt(
@@ -133,3 +135,37 @@ class DraftSrt(Srt):
             end=end,
             content=en_text + '\n' + zh_text
         )
+
+    @staticmethod
+    def fix_en_text(text: str) -> str:
+        """
+        处理英文字幕中的 {word1,word2} {word - - -} {}
+        """
+
+        def f(m):
+
+            tmp = m.group(1)
+            if tmp is None:
+                tmp = m.group(2)
+
+            res = None
+
+            length = len(tmp.split())
+
+            if length == 0:
+                # {}
+                if m.start() != m.pos and \
+                    m.end() != m.endpos:
+                    res = ' '
+                else:
+                    res = ''
+            elif length == 1:
+                # {word1,word2}
+                res = ' '.join(tmp.split(','))
+            else:
+                # {word - - -}
+                res = tmp.split()[0]
+
+            return res
+
+        return FIX_EN_SRT_REGEX.sub(f, text)
