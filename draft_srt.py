@@ -114,26 +114,34 @@ class DraftSrt(Srt):
             for i in range(length):
                 tmp.append(part_srts[i])
                 if i != length - 1:
-                    yield __class__.merge_part_srts(tmp)
+                    yield __class__.merge_part_srts(tmp, langs)
                     tmp = []
 
-        yield __class__.merge_part_srts(tmp)
+        yield __class__.merge_part_srts(tmp, langs)
 
     @staticmethod
-    def merge_part_srts(part_srts: List[Srt]) -> Srt:
+    def merge_part_srts(part_srts: List[Srt], langs: List[str]=['en', 'zh']) -> Srt:
         part_srts = [_ for _ in part_srts if _ is not None]  # 非空
         length = len(part_srts)
         start = part_srts[0].start
         end = part_srts[length - 1].end
-        en_text = ' '.join([_.content.split('\n')[0] for _ in part_srts])
-        en_text = __class__.fix_en_text(en_text)
-        zh_text = ''.join([_.content.split('\n')[1] for _ in part_srts])
+        if 'en' in langs:
+            en_text = ' '.join([_.content.split('\n')[0] for _ in part_srts])
+            en_text = __class__.fix_en_text(en_text)
+        if 'zh' in langs:
+            zh_text = ''.join([_.content.split('\n')[1] for _ in part_srts])
+
+        l = locals()
+        text = '\n'.join([
+            l['{}_text'.format(lang)]
+            for lang in langs
+        ])
 
         return Srt(
             index=0,
             start=start,
             end=end,
-            content=en_text + '\n' + zh_text
+            content=text
         )
 
     @staticmethod
