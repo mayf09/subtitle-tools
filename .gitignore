@@ -1,1 +1,7 @@
+.idea/
+.vscode/
+
+.pytest_cache/
+tmp/
+
 *.html
