@@ -2,7 +2,11 @@ from datetime import timedelta
 
 import pytest
 
-from draft_srt import DraftSrt
+from draft_srt import (
+    DraftSrt,
+    TimeOffset,
+    TimeOffsetParseException
+)
 
 
 @pytest.fixture
@@ -63,6 +67,14 @@ class TestDraftSrt:
 
         draft_srt.en_text = 'abcdefg'
         assert draft_srt.en_text == 'abcdefg'
+
+    def test_to_time_offset(self):
+        time_offset_string = '010,100'
+        time_offset_string_invalid = '010,100,110'
+
+        assert DraftSrt.to_time_offset(time_offset_string) == TimeOffset(10, 100)
+        with pytest.raises(TimeOffsetParseException):
+            DraftSrt.to_time_offset(time_offset_string_invalid)
 
     def test_to_final_srts(self, draft_srts):
         final_srts = DraftSrt.to_final_srts(draft_srts)

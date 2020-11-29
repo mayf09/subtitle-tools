@@ -15,12 +15,22 @@ ZH_INDEX=2
 
 PART_SRT_SEP_REGEX=re.compile(r'(?<=\S)\|\s?|\s?\|(?!\S)|^\||\|$')
 FIX_EN_SRT_REGEX = re.compile(r'\s?\{()\}\s?|\{([\w, -]+)\}')
+TIME_OFFSET_REGEX = re.compile(r'^\d+,\d+$')
 
 
 TimeOffset = namedtuple('TimeOffset', ['start', 'end'])
 
 
 class DraftSrt(Srt):
+
+    @classmethod
+    def from_srt(cls, srt):
+        obj = cls(srt.index, srt.start, srt.end, srt.content, proprietary=srt.proprietary)
+        if not obj.check_time_offset():
+            raise ValueError(obj.to_srt())
+        if not obj.check_zh_text():
+            raise ValueError(obj.to_srt())
+        return obj
 
     @property
     def time_offset(self) -> List[str]:
@@ -29,13 +39,15 @@ class DraftSrt(Srt):
 
     @staticmethod
     def to_time_offset(time_offset_string: str) -> TimeOffset:
+        if not TIME_OFFSET_REGEX.match(time_offset_string):
+            raise TimeOffsetParseException('TimeOffset parse error,  string is {}'.format((time_offset_string)))
         tmp = [int(_) for _ in time_offset_string.split(',')]
         return TimeOffset(*tmp)
 
     @property
     def en_text(self) -> str:
         if not self.has_en_text():
-            return None
+            return ''
         return self.get_content_lines()[EN_INDEX]
 
     @en_text.setter
@@ -47,7 +59,7 @@ class DraftSrt(Srt):
     @property
     def zh_text(self) -> str:
         if not self.has_zh_text():
-            return None
+            return ''
         return self.get_content_lines()[ZH_INDEX]
 
     @zh_text.setter
@@ -122,6 +134,8 @@ class DraftSrt(Srt):
     @staticmethod
     def merge_part_srts(part_srts: List[Srt], langs: List[str]=['en', 'zh']) -> Srt:
         part_srts = [_ for _ in part_srts if _ is not None]  # 非空
+        if not part_srts:
+            raise ValueError('some final srt is blank')
         length = len(part_srts)
         start = part_srts[0].start
         end = part_srts[length - 1].end
@@ -177,3 +191,7 @@ class DraftSrt(Srt):
             return res
 
         return FIX_EN_SRT_REGEX.sub(f, text)
+
+
+class TimeOffsetParseException(Exception):
+    pass
