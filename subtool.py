@@ -1,4 +1,11 @@
+import json
+
 import click
+import srt
+
+from draft_srt import DraftSrt
+
+from utils.res2draft import detail2srts
 
 
 @click.group()
@@ -7,14 +14,23 @@ def subtool():
 
 
 @subtool.command()
-@click.option('-i', required=True, help='音频文件')
-@click.option('-o', required=False, help='草稿字幕文件')
-@click.option('-k', type=bool, default=True, required=False, help='是否保留语音识别结果')
-def audio2draft():
+@click.option('-i', 'res_file', type=click.File('r'), required=True, help='音频文件')
+@click.option('-o', 'draft_srt_file', type=click.File('w'), required=True, help='草稿字幕文件')
+def res2draft(res_file, draft_srt_file):
     """
-    从音频文件生成 .draft.srt 文件
+    从语音识别文件生成 .draft.srt 文件
     """
-    pass
+    res = json.load(res_file)
+    result_detail = res['Data']['ResultDetail']
+    draft_srts = []
+    for detail in result_detail:
+        srts = detail2srts(detail)
+        draft_srts.extend(srts)
+
+    srt.sort_and_reindex(draft_srts)
+    draft_string = srt.compose(draft_srts)
+    draft_srt_file.write(draft_string)
+    draft_srt_file.flush()
 
 
 @subtool.command()
