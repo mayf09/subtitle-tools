@@ -44,14 +44,23 @@ def trans():
 
 
 @subtool.command()
-@click.option('-i', required=True, help='源草稿字幕文件')
-@click.option('-o', required=True, help='生成字幕文件')
-@click.option('--langs', multiple=True, default=['en', 'zh'], required=False, help='指定生成字幕语言')
-def draft2final():
+@click.option('-i', 'draft_srt_file', type=click.File('r'), required=True, help='源草稿字幕文件')
+@click.option('-o', 'final_srt_file', type=click.File('w'), required=True, help='生成字幕文件')
+@click.option('--lang', 'langs', multiple=True, default=['en', 'zh'], required=False, help='指定生成字幕语言')
+def draft2final(draft_srt_file, final_srt_file, langs):
     """
     使用 .draft.srt 文本生成最终字幕文件
     """
-    pass
+    srts = srt.parse(draft_srt_file)
+    draft_srts = [DraftSrt.from_srt(_) for _ in srts]
+
+    final_srts = []
+    for _ in DraftSrt.to_final_srts(draft_srts, langs=langs):
+        final_srts.append(_)
+    final_string = srt.compose(final_srts)
+
+    final_srt_file.write(final_string)
+    final_srt_file.flush()
 
 
 if __name__ == "__main__":
