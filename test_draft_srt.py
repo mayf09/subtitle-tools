@@ -89,6 +89,13 @@ class TestDraftSrt:
             assert srt.content == expect_res[i]
 
 
-    def test_fix_en_text(self):
-        text = '{} a bc {d,ef} {g - -}'
-        assert DraftSrt.fix_en_text(text) == 'a bc d ef g'
+    @pytest.mark.parametrize('text, res',
+    [
+        ('{} a bc {d,ef} {g - -}', 'a bc d ef g'),
+        ('{1.2 -}', '1.2'),
+        ('{[] -}', '[]'),
+    ],
+    scope='class',
+    )
+    def test_fix_en_text(self, text, res):
+        assert DraftSrt.fix_en_text(text) == res
