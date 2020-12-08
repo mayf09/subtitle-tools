@@ -94,8 +94,19 @@ class TestDraftSrt:
         ('{} a bc {d,ef} {g - -}', 'a bc d ef g'),
         ('{1.2 -}', '1.2'),
         ('{[] -}', '[]'),
+        ('{\\{abc\\} -}', '\\{abc\\}')
     ],
     scope='class',
     )
     def test_fix_en_text(self, text, res):
         assert DraftSrt.fix_en_text(text) == res
+
+    def test_skip_split_text(self):
+        content = '000,100 200,300\nabc\\| def\n一二\\|三'
+        draft_srt = DraftSrt(
+            index=1,
+            start=timedelta(0, 10, 000),
+            end=timedelta(0, 20, 200),
+            content=content
+        )
+        assert len(draft_srt.get_part_srts()) == 1

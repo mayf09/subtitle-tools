@@ -13,8 +13,8 @@ TIME_OFFSET_INDEX=0
 EN_INDEX=1
 ZH_INDEX=2
 
-PART_SRT_SEP_REGEX=re.compile(r'(?<=\S)\|\s?|\s?\|(?!\S)|^\||\|$')
-FIX_EN_SRT_REGEX = re.compile(r'\s?\{()\}\s?|\{([^{}]+)\}')
+PART_SRT_SEP_REGEX=re.compile(r'\s?(?<!\\)\|\s?')
+FIX_EN_SRT_REGEX = re.compile(r'\s?(?<!\\)\{()(?<!\\)\}\s?|(?<!\\)\{(.+?)(?<!\\)\}')
 TIME_OFFSET_REGEX = re.compile(r'^\d+,\d+$')
 
 
