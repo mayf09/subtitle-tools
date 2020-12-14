@@ -6,11 +6,22 @@ import srt
 from draft_srt import DraftSrt
 
 from utils.res2draft import detail2srts
+from utils.config import SubtoolConfig
+from utils.translate import translate_batch_text
+from utils.trans_func import trans
 
 
 @click.group()
 def subtool():
     pass
+
+
+@subtool.command()
+@click.option('--secret-id', 'secret_id', type=str, required=True, help='云服务 SecretId')
+@click.option('--secret-key', 'secret_key', type=str, required=True, help='云服务 SecretKey')
+def config(secret_id, secret_key):
+    subtool_config = SubtoolConfig()
+    subtool_config.set_cloud_auth(secret_id, secret_key)
 
 
 @subtool.command()
@@ -34,13 +45,19 @@ def res2draft(res_file, draft_srt_file):
 
 
 @subtool.command()
-@click.option('-i', required=True, help='源草稿字幕文件（英文）')
-@click.option('-o', required=False, help='目标草稿字幕文件，如果不指定，输出到源文件')
-def trans():
+@click.option('-i', 'draft_srt_file', type=click.File('r+'), required=True, help='源草稿字幕文件（英文）')
+def en2zh(draft_srt_file):
     """
     机器翻译 .draft.srt 文件
     """
-    pass
+    subs = srt.parse(draft_srt_file)
+    subs = [_ for _ in subs]
+
+    trans(subs, 2000, translate_batch_text, 0.2)
+
+    draft_srt_file.seek(0)
+    draft_srt_file.write(srt.compose(subs))
+    draft_srt_file.flush()
 
 
 @subtool.command()
