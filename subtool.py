@@ -5,8 +5,9 @@ import srt
 
 from draft_srt import DraftSrt
 
-from utils.res2draft import detail2srts
 from utils.config import SubtoolConfig
+from utils.get_asr_res import get_asr_res
+from utils.res2draft import detail2srts
 from utils.translate import translate_batch_text
 from utils.trans_func import trans
 
@@ -17,15 +18,26 @@ def subtool():
 
 
 @subtool.command()
-@click.option('--secret-id', 'secret_id', type=str, required=True, help='云服务 SecretId')
-@click.option('--secret-key', 'secret_key', type=str, required=True, help='云服务 SecretKey')
-def config(secret_id, secret_key):
+@click.option('--secret-id', 'secret_id', type=str, required=False, help='云服务 SecretId')
+@click.option('--secret-key', 'secret_key', type=str, required=False, help='云服务 SecretKey')
+@click.option('--bucket-name', 'bucket_name', type=str, required=False, help='云服务桶名称')
+def config(secret_id, secret_key, bucket_name):
     subtool_config = SubtoolConfig()
-    subtool_config.set_cloud_auth(secret_id, secret_key)
+    if secret_id and secret_key:
+        subtool_config.set_cloud_auth(secret_id, secret_key)
+    if bucket_name:
+        subtool_config.set_bucket_name(bucket_name)
 
 
 @subtool.command()
-@click.option('-i', 'res_file', type=click.File('r'), required=True, help='音频文件')
+@click.option('-i', 'audio_file', type=str, required=True, help='音频文件')
+@click.option('-o', 'res_file', type=str, required=True, help='语音识别结果文件')
+def asr_res(audio_file, res_file):
+    get_asr_res(audio_file, res_file)
+
+
+@subtool.command()
+@click.option('-i', 'res_file', type=click.File('r'), required=True, help='语音识别结果文件')
 @click.option('-o', 'draft_srt_file', type=click.File('w'), required=True, help='草稿字幕文件')
 def res2draft(res_file, draft_srt_file):
     """
@@ -74,6 +86,11 @@ def draft2final(draft_srt_file, final_srt_file, langs):
     final_srts = []
     for _ in DraftSrt.to_final_srts(draft_srts, langs=langs):
         final_srts.append(_)
+
+    for i in range(len(final_srts)):
+        if len(final_srts[i].content) > 80:
+            print(final_srts[i].to_srt())
+
     final_string = srt.compose(final_srts)
 
     final_srt_file.write(final_string)

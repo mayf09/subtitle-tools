@@ -13,10 +13,18 @@ class SubtoolConfig:
 
         self.config = configparser.ConfigParser()
         self.config_file = config_file
+        self.get_config()
+
+    def get_config(self):
+        try:
+            self.config.read(self.config_file)
+        except Exception:
+            pass
 
     def set_cloud_auth(self, secret_id: str, secret_key: str):
 
-        self.config['tencentcloud'] = {}
+        if self.config.get('tencentcloud') is None:
+            self.config['tencentcloud'] = {}
         self.config['tencentcloud']['SecretId'] = secret_id
         self.config['tencentcloud']['SecretKey'] = secret_key
         with open(self.config_file, 'w') as f:
@@ -24,7 +32,6 @@ class SubtoolConfig:
 
     def get_cloud_auth(self) -> Tuple[str, str]:
 
-        self.config.read(self.config_file)
         # print(self.config.sections)  # DEBUG
 
         # 用户的账号信息
@@ -34,3 +41,13 @@ class SubtoolConfig:
         secret_key = self.config['tencentcloud']['SecretKey']
 
         return secret_id, secret_key
+
+    def set_bucket_name(self, bucket_name: str):
+
+        self.config['tencentcloud']['BucketName'] = bucket_name
+        with open(self.config_file, 'w') as f:
+            self.config.write(f)
+
+    def get_bucket_name(self) -> str:
+
+        return self.config['tencentcloud']['BucketName']
