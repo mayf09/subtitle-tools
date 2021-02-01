@@ -1,21 +1,15 @@
-from enum import Enum
 from typing import List, Tuple
 
 
-class ListDiffType(Enum):
-    """
-    EXPAND 表示需要展开；
-    MERGE 表示需要合并。
-    """
-    EXPAND = 0
-    MERGE = 1
-
-
-def get_list_diff(l1: List[str], l2: List[str]) -> Tuple[ListDiffType, int, int]:
+def get_list_diff(l1: List[str], l2: List[str]) -> Tuple[int, int, int, int]:
     """
     返回列表 l1 中与 l2 不同的地方
 
-    返回的元组，第一个是差异类型，第二个是差异起始位置，第三个是差异持续个数
+    返回的元组：
+    第一个是 l1 差异起始位置，
+    第二个是 l1 差异结束位置（不包含），
+    第三个是 l2 差异起始位置，
+    第四个是 l2 差异结束位置（不包含）
     """
     i1 = i2 = 0
     d1 = d2 = None  # diff 起始位置
@@ -43,16 +37,13 @@ def get_list_diff(l1: List[str], l2: List[str]) -> Tuple[ListDiffType, int, int]
                 # diff 处理中
                 if ''.join(l1[d1:i1+1]) == ''.join(l2[d2:i2+1]):
                     # 累积字符串相等， diff 结束
-                    if i1 == d1:
-                        res.append((ListDiffType.EXPAND, d1, i2+1-d2))
-                    else:
-                        res.append((ListDiffType.MERGE, d1, i1+1-d1))
+                    res.append((d1, i1+1, d2, i2+1))
                     in_diff = False
                     i1 += 1
                     i2 += 1
                 else:
                     # 继续处理 diff
-                    if i1 == d1:
+                    if len(''.join(l1[d1:i1+1])) > len(''.join(l2[d2:i2+1])):
                         i2 += 1
                     else:
                         i1 += 1

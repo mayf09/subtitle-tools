@@ -4,7 +4,7 @@ from typing import Dict, List
 import srt
 
 
-from utils.list_diff import get_list_diff, ListDiffType
+from utils.list_diff import get_list_diff
 
 
 def get_only_letters(s):
@@ -32,26 +32,19 @@ def fix_sentence(final_sentence: str, slice_sentence: str) -> str:
     )
 
     final_sentence_list = final_sentence.split()
-    count1 = 0  # 对多于一次的操作进行修正，此时 list 已经变动了
+    diff_count = 0  # 对多于一次的操作进行修正，此时 list 已经变动了
     for s_diff in sentence_diff:
-        diff_type, diff_start, diff_count = s_diff
-        if diff_type == ListDiffType.EXPAND:
-            start = diff_start - count1
-            end = diff_start - count1 + 1
-            first = '{' + final_sentence_list[diff_start - count1]
-            last = '-}'
-            middle = ['-' for i in range(diff_count - 2)]
-            tmp = [first]
-            tmp.extend(middle)
-            tmp.append(last)
-            final_sentence_list[start: end] = tmp
-            count1 -= (diff_count - 1)
-        else:
-            start = diff_start - count1
-            end = diff_start + diff_count - count1
-            final_sentence_list[start: end] = ['{' + ','.join(final_sentence_list[start: end]) + '}']
-            count1 += (diff_count - 1)
-
+        diff_start1, diff_end1, diff_start2, diff_end2 = s_diff
+        start = diff_start1 - diff_count
+        end = diff_end1 - diff_count
+        first = '{' + ','.join(final_sentence_list[start:end])
+        last = '-}'
+        middle = ['-' for i in range(diff_end2 - diff_start2 - 2)]
+        tmp = [first]
+        tmp.extend(middle)
+        tmp.append(last)
+        final_sentence_list[start: end] = tmp
+        diff_count += 1
     res = ' '.join(final_sentence_list)
     return res
 

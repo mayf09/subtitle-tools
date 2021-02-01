@@ -1,6 +1,5 @@
 import pytest
 
-from utils.list_diff import ListDiffType
 from utils.list_diff import get_list_diff
 
 
@@ -8,17 +7,22 @@ from utils.list_diff import get_list_diff
     (
         ['a', 'bc', 'def', 'g'],
         ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
-        [(ListDiffType.EXPAND, 1, 2), (ListDiffType.EXPAND, 2, 3)]
+        [(1, 2, 1, 3), (2, 3, 3, 6)]
     ),
     (
         ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
         ['a', 'bc', 'def', 'g'],
-        [(ListDiffType.MERGE, 1, 2), (ListDiffType.MERGE, 3, 3)],
+        [(1, 3, 1, 2), (3, 6, 2, 3)],
     ),
     (
         ['a', 'b', 'c', 'def', 'g'],
         ['a', 'bc', 'd', 'e', 'f', 'g'],
-        [(ListDiffType.MERGE, 1, 2), (ListDiffType.EXPAND, 3, 3)]
+        [(1, 3, 1, 2), (3, 4, 2, 5)]
+    ),
+    (
+        ['a', 'bc', 'de', 'f'],
+        ['a', 'b', 'cd', 'e', 'f'],
+        [(1, 3, 1, 4)]
     )
 ])
 def test_list_diff(l1, l2, res):
