@@ -11,7 +11,7 @@ from draft_srt import (
 
 @pytest.fixture
 def draft_srt():
-    content = '000,100 200,300 300,500\nabc| def| g|\n一二|三四|五|'
+    content = '000,100 100,200 200,300 300,400 400,500\none two three| four five\n一二三|四五'
     return DraftSrt(
         index=1,
         start=timedelta(0, 10, 000),
@@ -27,19 +27,19 @@ def draft_srts():
             index=1,
             start=timedelta(0, 10, 100),
             end=timedelta(0, 20, 200),
-            content='000,100 100,200\nabc| de\n一二三|四五'
+            content='000,100 100,200 200,300 300,400 400,500\none two three| four five\n一二三|四五六七八'
         ),
         DraftSrt(
             index=2,
             start=timedelta(0, 30, 300),
             end=timedelta(0, 40, 400),
-            content='200,300\nfg\n六七'
+            content='000,100 100,200\nsix seven'
         ),
         DraftSrt(
             index=3,
             start=timedelta(0, 50, 500),
             end=timedelta(0, 60, 600),
-            content='300,400 400,500 500,600\nhi| jkl| mn\n|八|九'
+            content='000,100 100,200 200,300\neight| nine| ten\n|九|十'
         )
     ]
 
@@ -51,22 +51,21 @@ class TestDraftSrt:
         assert draft_srt.has_zh_text() == True
         assert draft_srt.check_time_offset() == True
         assert draft_srt.check_zh_text() == True
-        assert len(draft_srt.time_offset) == 3
-        assert draft_srt.en_text == 'abc| def| g|'
-        assert draft_srt.zh_text == '一二|三四|五|'
+        assert len(draft_srt.time_offset) == 5
+        assert draft_srt.en_text == 'one two three| four five'
+        assert draft_srt.zh_text == '一二三|四五'
         expect_res = [
-            'abc\n一二',
-            'def\n三四',
-            'g\n五'
+            'one two three\n一二三',
+            'four five\n四五'
         ]
         for i, srt in enumerate(draft_srt.get_part_srts()):
             if srt is not None:
                 # print(srt.to_srt())
                 assert srt.content == expect_res[i]
-        assert len(draft_srt.get_part_srts()) == 4
+        assert len(draft_srt.get_part_srts()) == 2
 
-        draft_srt.en_text = 'abcdefg'
-        assert draft_srt.en_text == 'abcdefg'
+        draft_srt.en_text = 'one two three four five six seven'
+        assert draft_srt.en_text == 'one two three four five six seven'
 
     def test_to_time_offset(self):
         time_offset_string = '010,100'
@@ -79,10 +78,10 @@ class TestDraftSrt:
     def test_to_final_srts(self, draft_srts):
         final_srts = DraftSrt.to_final_srts(draft_srts)
         expect_res = [
-            'abc\n一二三',
-            'de fg hi\n四五六七',
-            'jkl\n八',
-            'mn\n九'
+            'one two three\n一二三',
+            'four five six seven eight\n四五六七八',
+            'nine\n九',
+            'ten\n十'
         ]
         for i, srt in enumerate(final_srts):
             # print(srt.to_srt())
@@ -91,10 +90,10 @@ class TestDraftSrt:
 
     @pytest.mark.parametrize('text, res',
     [
-        ('{} a bc {d,ef} {g - -}', 'a bc d ef g'),
+        ('{} one two three {four,five,six} {seven - -}', 'one two three four five six seven'),
         ('{1.2 -}', '1.2'),
         ('{[] -}', '[]'),
-        ('{\\{abc\\} -}', '\\{abc\\}')
+        ('{\\{one\\} -}', '\\{one\\}')
     ],
     scope='class',
     )
@@ -102,10 +101,10 @@ class TestDraftSrt:
         assert DraftSrt.fix_en_text(text) == res
 
     def test_skip_split_text(self):
-        content = '000,100 200,300\nabc\\| def\n一二\\|三'
+        content = '000,100 100,200 200,300 300,400 400,500\none two\\| three four five\n一二\\|三四五'
         draft_srt = DraftSrt(
             index=1,
-            start=timedelta(0, 10, 000),
+            start=timedelta(0, 10, 100),
             end=timedelta(0, 20, 200),
             content=content
         )
