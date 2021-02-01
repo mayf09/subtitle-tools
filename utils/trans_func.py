@@ -117,7 +117,10 @@ def trans_group(subs, sub_group, trans_f):
             else:
                 if len(subs[line_index].content.split('\n')) < 3:
                     # 是否已经有第 3 行
-                    subs[line_index].content = subs[line_index].content + '\n' + '|'.join(tmp_parts)
+                    if len(tmp_parts) == 1 and tmp_parts[0] == '':
+                        subs[line_index].content = subs[line_index].content
+                    else:
+                        subs[line_index].content = subs[line_index].content + '\n' + '|'.join(tmp_parts)
                 else:
                     subs[line_index].content = subs[line_index].content + '|' + '|'.join(tmp_parts)
                 line_index = info.index
@@ -130,7 +133,10 @@ def trans_group(subs, sub_group, trans_f):
                     tmp_parts.append('')
     if len(subs[line_index].content.split('\n')) < 3:
         # 是否已经有第 3 行
-        subs[line_index].content = subs[line_index].content + '\n' + '|'.join(tmp_parts)
+        if len(tmp_parts) == 1 and tmp_parts[0] == '':
+            subs[line_index].content = subs[line_index].content
+        else:
+            subs[line_index].content = subs[line_index].content + '\n' + '|'.join(tmp_parts)
     else:
         subs[line_index].content = subs[line_index].content + '|' + '|'.join(tmp_parts)
 
