@@ -45,9 +45,9 @@ class DraftSrt(Srt):
         return TimeOffset(*tmp)
 
     @property
-    def en_text(self) -> str:
+    def en_text(self) -> str or None:
         if not self.has_en_text():
-            return ''
+            return None
         return self.get_content_lines()[EN_INDEX]
 
     @en_text.setter
@@ -57,9 +57,9 @@ class DraftSrt(Srt):
         self.content = '\n'.join(content_lines)
 
     @property
-    def zh_text(self) -> str:
+    def zh_text(self) -> str or None:
         if not self.has_zh_text():
-            return ''
+            return None
         return self.get_content_lines()[ZH_INDEX]
 
     @zh_text.setter
@@ -83,6 +83,16 @@ class DraftSrt(Srt):
         return len(self.time_offset) == len(self.en_text.split())
 
     def check_zh_text(self) -> bool:
+
+        # 不包含英文字幕
+        if not self.has_en_text():
+            return True
+
+        # 包含英文字幕，不包含中文字幕
+        if not self.has_zh_text():
+            return True
+
+        # 既包含英文字幕，又包含中文字幕
         return len(PART_SRT_SEP_REGEX.split(self.en_text)) == len(PART_SRT_SEP_REGEX.split(self.zh_text))
 
     def time_offset_to_timedelta(self, t):
@@ -96,19 +106,28 @@ class DraftSrt(Srt):
         efg
         None
         """
+        if not self.has_en_text():
+            return []
         part_srt_en_texts = PART_SRT_SEP_REGEX.split(self.en_text)
-        part_srt_zh_texts = PART_SRT_SEP_REGEX.split(self.zh_text)
+        zh_text = self.zh_text
+        if zh_text is None:
+            zh_text = ''
+        part_srt_zh_texts = PART_SRT_SEP_REGEX.split(zh_text)
         res = []
         part_srt_start_index = 0
         for i in range(len(part_srt_en_texts)):
             item = part_srt_en_texts[i]
             length = len(item.split())
             if item != '':
+                if self.has_zh_text():
+                    content = '\n'.join([part_srt_en_texts[i], part_srt_zh_texts[i]])
+                else:
+                    content = '\n'.join([part_srt_en_texts[i]])
                 res.append(
                     Srt(index=0,
                         start=self.time_offset_to_timedelta(self.time_offset[part_srt_start_index].start),
                         end=self.time_offset_to_timedelta(self.time_offset[part_srt_start_index+length-1].end),
-                        content='\n'.join([part_srt_en_texts[i], part_srt_zh_texts[i]]))
+                        content=content)
                 )
                 part_srt_start_index += length
             else:
@@ -143,7 +162,7 @@ class DraftSrt(Srt):
             en_text = ' '.join([_.content.split('\n')[0] for _ in part_srts])
             en_text = __class__.fix_en_text(en_text)
         if 'zh' in langs:
-            zh_text = ''.join([_.content.split('\n')[1] for _ in part_srts])
+            zh_text = ''.join([_.content.split('\n')[1] for _ in part_srts if len(_.content.split('\n')) > 1])
 
         l = locals()
         text = '\n'.join([
