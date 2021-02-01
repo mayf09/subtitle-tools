@@ -90,10 +90,12 @@ class TestDraftSrt:
 
     @pytest.mark.parametrize('text, res',
     [
-        ('{} one two three {four,five,six} {seven - -}', 'one two three four five six seven'),
+        ('{} one two {} three {four,five,six} {seven - -}', 'one two three four five six seven'),
         ('{1.2 -}', '1.2'),
         ('{[] -}', '[]'),
-        ('{\\{one\\} -}', '\\{one\\}')
+        ('{\\{one\\} -}', '\\{one\\}'),
+        ('{ - -}', ''),
+        ('{one,two - -}', 'one two')
     ],
     scope='class',
     )

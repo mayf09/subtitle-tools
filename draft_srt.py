@@ -14,7 +14,8 @@ EN_INDEX=1
 ZH_INDEX=2
 
 PART_SRT_SEP_REGEX=re.compile(r'\s?(?<!\\)\|\s?')
-FIX_EN_SRT_REGEX = re.compile(r'\s?(?<!\\)\{()(?<!\\)\}\s?|(?<!\\)\{(.+?)(?<!\\)\}')
+FIX_EN_SRT_REGEX = re.compile(r'(?<!\\)\{(.*?)(?<!\\)\}')  # 匹配大括号内的内容，不包含 '\{' '\}'
+FIX_MANY_SPACE = re.compile(r'(  +)')  # 匹配多个空格
 TIME_OFFSET_REGEX = re.compile(r'^\d+,\d+$')
 
 
@@ -184,32 +185,19 @@ class DraftSrt(Srt):
         """
 
         def f(m):
-
             tmp = m.group(1)
-            if tmp is None:
-                tmp = m.group(2)
-
-            res = None
-
-            length = len(tmp.split())
-
-            if length == 0:
-                # {}
-                if m.start() != m.pos and \
-                    m.end() != m.endpos:
-                    res = ' '
-                else:
-                    res = ''
-            elif length == 1:
-                # {word1,word2}
-                res = ' '.join(tmp.split(','))
-            else:
-                # {word - - -}
-                res = tmp.split()[0]
-
+            # '{}'                -> ''
+            # '{word1,word2}'     -> 'word1 word2'
+            # '{word - -}'        -> 'word'
+            # '{ - -}'            -> ''
+            # '{word1,word2 - -}' -> 'word1 word2'
+            res = ' '.join(re.split(' ', tmp)[0].split(','))
             return res
 
-        return FIX_EN_SRT_REGEX.sub(f, text)
+        text1 = FIX_EN_SRT_REGEX.sub(f, text)  # 处理大括号内容
+        text2 = FIX_MANY_SPACE.sub(' ', text1).strip()  # 处理空格，多个空格或首尾空格
+
+        return text2
 
 
 class TimeOffsetParseException(Exception):
