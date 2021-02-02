@@ -15,7 +15,7 @@ ZH_INDEX=2
 
 PART_SRT_SEP_REGEX=re.compile(r'\s?(?<!\\)\|\s?')
 FIX_EN_SRT_REGEX = re.compile(r'(?<!\\)\{(.*?)(?<!\\)\}')  # 匹配大括号内的内容，不包含 '\{' '\}'
-FIX_MANY_SPACE = re.compile(r'(  +)')  # 匹配多个空格
+FIX_SPACE_REGEX = re.compile(r'( +)(?=[ ,.!?])')  # 匹配空格及断句标点之前的空格
 TIME_OFFSET_REGEX = re.compile(r'^\d+,\d+$')
 
 
@@ -195,7 +195,7 @@ class DraftSrt(Srt):
             return res
 
         text1 = FIX_EN_SRT_REGEX.sub(f, text)  # 处理大括号内容
-        text2 = FIX_MANY_SPACE.sub(' ', text1).strip()  # 处理空格，多个空格或首尾空格
+        text2 = FIX_SPACE_REGEX.sub('', text1).strip()  # 处理不合适的空格
 
         return text2
 

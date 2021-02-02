@@ -95,7 +95,9 @@ class TestDraftSrt:
         ('{[] -}', '[]'),
         ('{\\{one\\} -}', '\\{one\\}'),
         ('{ - -}', ''),
-        ('{one,two - -}', 'one two')
+        ('{one,two - -}', 'one two'),
+        ('one two {}, three', 'one two, three'),
+        ('one two { - -}! three', 'one two! three')
     ],
     scope='class',
     )
