@@ -14,6 +14,9 @@ from utils.trans_func import trans
 
 @click.group()
 def subtool():
+    """
+    字幕制作工具，使用自定义的草稿字幕（.draft.srt）
+    """
     pass
 
 
@@ -22,6 +25,9 @@ def subtool():
 @click.option('--secret-key', 'secret_key', type=str, required=False, help='云服务 SecretKey')
 @click.option('--bucket-name', 'bucket_name', type=str, required=False, help='云服务桶名称')
 def config(secret_id, secret_key, bucket_name):
+    """
+    配置参数
+    """
     subtool_config = SubtoolConfig()
     if secret_id and secret_key:
         subtool_config.set_cloud_auth(secret_id, secret_key)
@@ -32,16 +38,19 @@ def config(secret_id, secret_key, bucket_name):
 @subtool.command()
 @click.option('-i', 'audio_file', type=str, required=True, help='音频文件')
 @click.option('-o', 'res_file', type=str, required=True, help='语音识别结果文件')
-def asr_res(audio_file, res_file):
+def audio2text(audio_file, res_file):
+    """
+    使用音频文件获得语音识别文件
+    """
     get_asr_res(audio_file, res_file)
 
 
 @subtool.command()
 @click.option('-i', 'res_file', type=click.File('r'), required=True, help='语音识别结果文件')
 @click.option('-o', 'draft_srt_file', type=click.File('w'), required=True, help='草稿字幕文件')
-def res2draft(res_file, draft_srt_file):
+def text2draft(res_file, draft_srt_file):
     """
-    从语音识别文件生成 .draft.srt 文件
+    使用语音识别文件生成 .draft.srt 文件
     """
     res = json.load(res_file)
     result_detail = res['Data']['ResultDetail']
@@ -60,7 +69,7 @@ def res2draft(res_file, draft_srt_file):
 @click.option('-i', 'draft_srt_file', type=click.File('r+'), required=True, help='源草稿字幕文件（英文）')
 def en2zh(draft_srt_file):
     """
-    机器翻译 .draft.srt 文件
+    机器翻译 .draft.srt 文件（在原文件中添加翻译结果）
     """
     subs = srt.parse(draft_srt_file)
     subs = [_ for _ in subs]
@@ -75,7 +84,7 @@ def en2zh(draft_srt_file):
 @subtool.command()
 @click.option('-i', 'draft_srt_file', type=click.File('r'), required=True, help='源草稿字幕文件')
 @click.option('-o', 'final_srt_file', type=click.File('w'), required=True, help='生成字幕文件')
-@click.option('--lang', 'langs', multiple=True, default=['en', 'zh'], required=False, help='指定生成字幕语言')
+@click.option('--langs', 'langs', multiple=True, default=['en', 'zh'], required=False, help='指定生成字幕语言')
 def draft2final(draft_srt_file, final_srt_file, langs):
     """
     使用 .draft.srt 文本生成最终字幕文件
