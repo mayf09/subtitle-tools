@@ -38,11 +38,11 @@ def fix_sentence(final_sentence: str, slice_sentence: str) -> str:
         start = diff_start1 - diff_count
         end = diff_end1 - diff_count
         first = '{' + ','.join(final_sentence_list[start:end])
-        last = '-}'
-        middle = ['-' for i in range(diff_end2 - diff_start2 - 2)]
+        middle = ['-' for i in range(diff_end2 - diff_start2 - 1)]
+        last = '}'
         tmp = [first]
         tmp.extend(middle)
-        tmp.append(last)
+        tmp[-1] = tmp[-1] + last
         final_sentence_list[start: end] = tmp
         diff_count += 1
     res = ' '.join(final_sentence_list)
