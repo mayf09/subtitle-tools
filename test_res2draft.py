@@ -1,13 +1,13 @@
 import pytest
 
-from utils.res2draft import get_only_letters
+from utils.get_valid_string import get_valid_string
 
 @pytest.mark.parametrize('text, res',
 [
     (' ab123\'', 'ab123'),
-    ('I\'m going to', 'I\'m going to'),
-    ('12,345', '12,345')
+    ('I\'m going to', 'Imgoingto'),
+    ('12,345', '12345')
 ]
 )
-def test_get_only_letters(text, res):
-    assert get_only_letters(text) == res
+def test_get_valid_string(text, res):
+    assert get_valid_string(text) == res

@@ -4,22 +4,9 @@ from typing import Dict, List
 import srt
 
 
+from utils.get_valid_string import get_valid_string
 from utils.list_diff import get_list_diff
 
-
-def get_only_letters(s):
-    """
-    删除 s 两边的标点符号，空字符
-    """
-    len_s = len(s)
-    i , j = 0, len_s-1
-
-    while i < len_s and not s[i].isalnum():
-        i += 1
-    while j >= i and not s[j].isalnum():
-        j -= 1
-
-    return s[i:j+1]
 
 
 def fix_sentence(final_sentence: str, slice_sentence: str) -> str:
@@ -27,8 +14,8 @@ def fix_sentence(final_sentence: str, slice_sentence: str) -> str:
     TODO:
     """
     sentence_diff = get_list_diff(
-        [get_only_letters(word) for word in final_sentence.split()],
-        slice_sentence.split()
+        [get_valid_string(word) for word in final_sentence.split()],
+        [get_valid_string(word) for word in slice_sentence.split()]
     )
 
     final_sentence_list = final_sentence.split()

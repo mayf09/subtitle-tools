@@ -11,6 +11,10 @@ def get_list_diff(l1: List[str], l2: List[str]) -> Tuple[int, int, int, int]:
     第三个是 l2 差异起始位置，
     第四个是 l2 差异结束位置（不包含）
     """
+
+    # 检查两个列表包含的所有字符必须相同
+    assert ''.join(l1) == ''.join(l2), 'l1: {}, l2: {}'.format(l1, l2)
+
     i1 = i2 = 0
     d1 = d2 = None  # diff 起始位置
     in_diff = False  # 在差异处理过程中

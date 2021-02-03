@@ -27,3 +27,9 @@ from utils.list_diff import get_list_diff
 ])
 def test_list_diff(l1, l2, res):
     assert get_list_diff(l1, l2) == res
+
+
+def test_list_diff_invalid():
+    # 如果两个列表包含的所有字符不同，应该抛出断言错误
+    with pytest.raises(AssertionError):
+        get_list_diff(['a', 'bc', 'd', 'e'], ['a', 'b', 'cd', 'e', 'f'])
