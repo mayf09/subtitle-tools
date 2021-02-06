@@ -99,7 +99,6 @@ def trans_group(subs, sub_group, trans_f):
     trans_res = trans_f(
         [DraftSrt.fix_en_text(_.content.split('\n')[0]) for _ in sub_group]
     )
-    print(trans_res)
     tmp_parts = []
     line_index = 0
     trans_index = 0

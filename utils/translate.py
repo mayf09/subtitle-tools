@@ -46,8 +46,9 @@ def translate_batch_text(text_list: list) -> list:
         req.from_json_string(json.dumps(params))
 
         resp = client.TextTranslateBatch(req)
-        print(resp.to_json_string())
-        return resp.TargetTextList
+        targetText = resp.TargetTextList
+        print(targetText)
+        return targetText
 
     except TencentCloudSDKException as err:
         print(err)
