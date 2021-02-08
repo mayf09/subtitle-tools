@@ -6,3 +6,6 @@
 
 格式说明： [draft.srt.md](./draft.srt.md)
 
+## subtool 命令行工具
+
+查看帮助 `python subtool.py --help`
