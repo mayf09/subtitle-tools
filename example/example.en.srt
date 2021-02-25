@@ -1,0 +1,40 @@
+1
+00:00:00,720 --> 00:00:05,670
+Alright, I want to start by laying out some of the goals of the course.
+
+2
+00:00:05,700 --> 00:00:15,260
+So, number one is to understand design and implementation of operating systems.
+
+3
+00:00:17,080 --> 00:00:24,530
+Yeah, design is sort of high level structure and implementation is really about what the code looks like,
+
+4
+00:00:24,590 --> 00:00:26,480
+and we'll be spend a lot of time with both.
+
+5
+00:00:27,210 --> 00:00:33,380
+And in the interest of getting deep understanding of what's going on,
+
+6
+00:00:33,620 --> 00:00:44,700
+you'll get hands on experience with a small, with a small operating system, the xv6 operating system.
+
+7
+00:00:46,930 --> 00:00:50,230
+And in addition to actually looking at an existing operating system,
+
+8
+00:00:50,230 --> 00:00:54,610
+that you'll be in the labs get a bunch of experience,
+
+9
+00:00:54,610 --> 00:00:58,030
+extending the operating system, modifying, improving its behavior
+
+10
+00:00:58,120 --> 00:01:04,780
+and writing system software that it uses the operating system interfaces, [] application.
+
