@@ -1,10 +1,10 @@
 def get_valid_string(s):
     """
-    只返回字符串 s 中的字母、数字组成的字符串
+    返回字符串 s 中的字母、数字、 % 组成的字符串
     """
     t = list(s)
 
-    t = [_ for _ in t if _.isalnum()]
+    t = [_ for _ in t if _.isalnum() or _ == '%']
 
     res = ''.join(t)
 
