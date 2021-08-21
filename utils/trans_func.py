@@ -42,6 +42,10 @@ def get_next_index(subs):
 
 
 def get_next_real_sub(subs: List[DraftSrt]) -> RealText:
+    """
+    获取真正字幕（生成器）
+    """
+
     tmp = ''
     pre_part_info = None
     line_index = 0
@@ -83,6 +87,9 @@ def get_sub_group(subs, limit: int=None):
     for sub in real_sub_gen:
         # print(sub)
 
+        if len(sub.content) > limit:
+            raise Exception('single sub is too long')
+
         if get_string_list_length([_.content for _ in res]) + len(sub.content) > limit:
             yield(res)
             res = []
@@ -94,14 +101,17 @@ def get_sub_group(subs, limit: int=None):
 
 
 def trans_group(subs, sub_group, trans_f):
+    """
+    使用 trans_f 批量修改字幕，并放回原字幕 subs 位置
+    """
 
     first = True
     trans_res = trans_f(
         [DraftSrt.fix_en_text(_.content.split('\n')[0]) for _ in sub_group]
     )
-    tmp_parts = []
-    line_index = 0
-    trans_index = 0
+    tmp_parts = []  # 当前 trans_group 在某一行的临时部分
+    line_index = 0  # 临时行 index ，是否转换
+    trans_index = 0 # trans_res 的 index
     for real_text in sub_group:
         if first:
             first = False
@@ -116,9 +126,11 @@ def trans_group(subs, sub_group, trans_f):
                 else:
                     tmp_parts.append('')
             else:
+                # 如果草稿字幕换行，写入上一行
                 if len(subs[line_index].content.split('\n')) < 3:
                     # 是否已经有第 3 行
-                    if len(tmp_parts) == 1 and tmp_parts[0] == '':
+                    if len(tmp_parts) == 1 and tmp_parts[0] == '' and len(subs[line_index].content.split('|')) == 1:
+                        # 如果是字幕中间行且英文字幕无切分，则无中文字幕
                         subs[line_index].content = subs[line_index].content
                     else:
                         subs[line_index].content = subs[line_index].content + '\n' + '|'.join(tmp_parts)
@@ -134,7 +146,8 @@ def trans_group(subs, sub_group, trans_f):
                     tmp_parts.append('')
     if len(subs[line_index].content.split('\n')) < 3:
         # 是否已经有第 3 行
-        if len(tmp_parts) == 1 and tmp_parts[0] == '':
+        if len(tmp_parts) == 1 and tmp_parts[0] == '' and len(subs[line_index].content.split('|')) == 1:
+            # 如果是字幕中间行且英文字幕无切分，则无中文字幕
             subs[line_index].content = subs[line_index].content
         else:
             subs[line_index].content = subs[line_index].content + '\n' + '|'.join(tmp_parts)
@@ -143,7 +156,9 @@ def trans_group(subs, sub_group, trans_f):
 
 
 def trans(subs, limit, trans_f, sleep_time=None):
-
+    """
+    将 subs 通过 trans_f 转换
+    """
     for _ in get_sub_group(subs, limit):
         if sleep_time is not None:
             sleep(sleep_time)
