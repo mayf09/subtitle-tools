@@ -15,7 +15,7 @@ ZH_INDEX=2
 
 PART_SRT_SEP_REGEX=re.compile(r'\s?(?<!\\)\|\s?')
 FIX_EN_SRT_REGEX = re.compile(r'(?<!\\)\{(.*?)(?<!\\)\}')  # 匹配大括号内的内容，不包含 '\{' '\}'
-FIX_SPACE_REGEX = re.compile(r'( +)(?=[ ,.!?])')  # 匹配空格及断句标点之前的空格
+FIX_SPACE_REGEX = re.compile(r'( +)(?=[ ])|( +)(?=[,.!?] )|( +)(?=[,.!?]\Z)')  # 匹配多个空格或者断句标点之前的空格
 TIME_OFFSET_REGEX = re.compile(r'^\d+,\d+$')
 
 
