@@ -99,7 +99,8 @@ class TestDraftSrt:
         ('one two {}, three', 'one two, three'),
         ('one two { - -}! three', 'one two! three'),
         ('one two .o files', 'one two .o files'),
-        ('one two three .', 'one two three.')
+        ('one two three .', 'one two three.'),
+        ('{one,,two -} three', 'one,two three')
     ],
     scope='class',
     )

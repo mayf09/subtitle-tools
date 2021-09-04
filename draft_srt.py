@@ -16,6 +16,7 @@ ZH_INDEX=2
 PART_SRT_SEP_REGEX=re.compile(r'\s?(?<!\\)\|\s?')
 FIX_EN_SRT_REGEX = re.compile(r'(?<!\\)\{(.*?)(?<!\\)\}')  # 匹配大括号内的内容，不包含 '\{' '\}'
 FIX_SPACE_REGEX = re.compile(r'( +)(?=[ ])|( +)(?=[,.!?] )|( +)(?=[,.!?]\Z)')  # 匹配多个空格或者断句标点之前的空格
+FIX_COMMA_REGEX = re.compile(r'(,{2})')  # 匹配正好两个 ,
 TIME_OFFSET_REGEX = re.compile(r'^\d+,\d+$')
 
 
@@ -191,13 +192,20 @@ class DraftSrt(Srt):
             # '{word - -}'        -> 'word'
             # '{ - -}'            -> ''
             # '{word1,word2 - -}' -> 'word1 word2'
-            res = ' '.join(re.split(' ', tmp)[0].split(','))
+            # '{word1,,word2 - -}' -> 'word1,word2'
+            res = ' '.join(
+                re.split(
+                    '(?<!,),(?!,)',  # 匹配只有一个 , 的情况
+                    re.split(' ', tmp)[0]
+                )
+            )
             return res
 
         text1 = FIX_EN_SRT_REGEX.sub(f, text)  # 处理大括号内容
         text2 = FIX_SPACE_REGEX.sub('', text1).strip()  # 处理不合适的空格
+        text3 = FIX_COMMA_REGEX.sub(',', text2)
 
-        return text2
+        return text3
 
 
 class TimeOffsetParseException(Exception):
