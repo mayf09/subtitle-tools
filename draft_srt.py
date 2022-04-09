@@ -14,9 +14,10 @@ EN_INDEX=1
 ZH_INDEX=2
 
 PART_SRT_SEP_REGEX=re.compile(r'\s?(?<!\\)\|\s?')
+COMMA_REGEX = re.compile(r'\s?(?<!\\),\s?')  # 匹配 , ，不包含 '\,'
 FIX_EN_SRT_REGEX = re.compile(r'(?<!\\)\{(.*?)(?<!\\)\}')  # 匹配大括号内的内容，不包含 '\{' '\}'
 FIX_SPACE_REGEX = re.compile(r'( +)(?=[ ])|( +)(?=[,.!?] )|( +)(?=[,.!?]\Z)')  # 匹配多个空格或者断句标点之前的空格
-FIX_COMMA_REGEX = re.compile(r'(,{2})')  # 匹配正好两个 ,
+FIX_COMMA_REGEX = re.compile(r'\\,')  # 匹配 '\,'
 TIME_OFFSET_REGEX = re.compile(r'^\d+,\d+$')
 
 
@@ -192,10 +193,11 @@ class DraftSrt(Srt):
             # '{word - -}'        -> 'word'
             # '{ - -}'            -> ''
             # '{word1,word2 - -}' -> 'word1 word2'
-            # '{word1,,word2 - -}' -> 'word1,word2'
+            # '{word1\,word2 - -}' -> 'word1,word2'
+            # '{word1\,,word2 - -}' -> 'word1, word2'
             res = ' '.join(
                 re.split(
-                    '(?<!,),(?!,)',  # 匹配只有一个 , 的情况
+                    COMMA_REGEX,
                     re.split(' ', tmp)[0]
                 )
             )
