@@ -2,11 +2,11 @@
 
 - 0.准备音频文件
 
-    本例中使用 `example.m4a` （截取自 6.S081 2020 视频教程 Lecture 1, 40s-105s）
+    本例中使用 [example.m4a](./example.m4a) （截取自 6.S081 2020 视频教程 Lecture 1, 40s-105s）
 
 - 1.生成文本数据
 
-    通过语音识别，生成文本数据 `example.json`
+    通过语音识别，生成文本数据 [example.json](./example.json)
 
     ``` python
     python subtool.py audio2text -i example/example.m4a -o example/example.json
@@ -25,7 +25,7 @@
 
 - 2.生成草稿字幕
 
-    使用命令行工具生成草稿字幕文件 `example.draft.srt`
+    使用命令行工具生成草稿字幕文件 `example.draft.srt` （此时 `example.draft.srt` 的内容为 [example-0.draft.srt](./example-0.draft.srt) ）
 
     ``` python
     python subtool.py text2draft -i example/example.json -o example/example.draft.srt
@@ -33,11 +33,11 @@
 
 - 3.校正英文字幕
 
-    *人工校正* 英文字幕，直接编辑 `example.draft.srt` （本例中结果存放在 `example-1.draft.srt`)
+    *人工校正* 英文字幕，直接编辑草稿字幕文件 `example.draft.srt` （完成后， `example.draft.srt` 的内容为 [example-1.draft.srt](./example-1.draft.srt) ）
 
 - 4.生成中文翻译
 
-    通过机器翻译，在草稿字幕中生成中文翻译（本例中结果存放在 `example-2.draft.srt`）
+    通过机器翻译，在草稿字幕中生成中文翻译（完成后， `example.draft.srt` 的内容为 [example-2.draft.srt](./example-2.draft.srt) ）
 
     ``` python
     python subtool.py en2zh -i example/example.draft.srt
@@ -53,11 +53,11 @@
 
 - 5.校正中文字幕
 
-    *人工校正* 中文字幕，直接编辑 `example.draft.srt` （本例中结果存放在 `example-3.draft.srt`）
+    *人工校正* 中文字幕，直接编辑草稿字幕文件 `example.draft.srt` （完成后 `example.draft.srt` 的内容为 [example-3.draft.srt](./example-3.draft.srt) ）
 
 - 6.生成英文字幕
 
-    使用命令行工具生成英文字幕 `example.en.srt`
+    使用命令行工具生成英文字幕 [example.en.srt](./example.en.srt)
 
     ``` python
     python subtool.py draft2final --langs en -i example/example.draft.srt -o example.en.srt
@@ -65,7 +65,7 @@
 
 - 7.生成中文字幕
 
-    使用命令行工具生成中文字幕 `example.zh.srt`
+    使用命令行工具生成中文字幕 [example.zh.srt](./example.zh.srt)
 
     ``` python
     python subtool.py draft2final --langs en --langs zh -i example/example.draft.srt -o example.zh.srt
