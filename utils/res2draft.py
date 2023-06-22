@@ -101,4 +101,6 @@ def detail2srts(detail: Dict, split_number: int=5) -> List[srt.Subtitle]:
         ))
         i += split_number
 
+    srts[-1].content = srts[-1].content + '|' # every detail add a |
+
     return srts
