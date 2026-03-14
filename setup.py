@@ -8,7 +8,7 @@ setup(
         'Click==7.1.2',
         'srt==3.4.1',
         'cos-python-sdk-v5==1.9.0',
-        'tencentcloud-sdk-python==3.0.273',
+        'tencentcloud-sdk-python==3.0.279',
     ],
     entry_points={
         'console_scripts': [
